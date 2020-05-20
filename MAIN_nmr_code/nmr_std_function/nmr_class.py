@@ -147,6 +147,14 @@ class tunable_nmr_system_2018:
         # General control defaults for the FPGA
         self.gnrl_cnt = 0
 
+        # Numeric conversion of the hardware
+        self.pamp_gain_dB = 60  # preamp gain
+        self.rx_gain_dB = 20  # rx amp gain
+        self.totGain = 10 ** ( ( self.pamp_gain_dB + self.rx_gain_dB ) / 20 )
+        self.uvoltPerDigit = 3.2 * ( 10 ** 6 ) / 16384  # ADC conversion, in microvolt
+        self.fir_gain = 21513  # downconversion FIR filter gain (sum of all coefficients)
+        self.dconv_gain = 0.707106781  # downconversion gain factor due to sine(45,135,225,315) multiplication
+
         # ip addresses settings for the system
         self.server_ip = '192.168.137.10'  # '129.22.143.88'
         self.client_ip = '192.168.137.1'  # '129.22.143.39'
@@ -274,9 +282,14 @@ class tunable_nmr_system_2018:
             outpath
         )
 
-    def cpmgSequence( self, cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo, echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int , tx_sd_msk ):
+    def cpmgSequence( self, cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo, echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int , tx_sd_msk, en_dconv , dconv_fact ):
         # execute cpmg sequence
-        command = ( self.work_dir + self.exec_folder + "cpmg_iterate" + " " +
+        if ( en_dconv ):
+            exec_name = "cpmg_iterate_dconv"
+        else:
+            exec_name = "cpmg_iterate_raw"
+
+        command = ( self.work_dir + self.exec_folder + exec_name + " " +
                    str( cpmg_freq ) + " " +
                    str( pulse1_us ) + " " +
                    str( pulse2_us ) + " " +
@@ -291,7 +304,8 @@ class tunable_nmr_system_2018:
                    str( ph_cycl_en ) + " " +
                    str( pulse180_t1_int ) + " " +
                    str( delay180_t1_int ) + " " +
-                   str( tx_sd_msk )
+                   str( tx_sd_msk ) + " " +
+                   str( dconv_fact )
                    )
         os.system( command )  # execute command & ignore its console
 

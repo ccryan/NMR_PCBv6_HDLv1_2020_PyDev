@@ -19,11 +19,16 @@ en_remote_dbg = 0
 fig_num = 1
 en_fig = 1
 
+para_folder = "/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/para"
+load_para = 1
+
 # measurement properties
 sta_freq = 1
 sto_freq = 10
 spac_freq = 0.05
 samp_freq = 25
+
+target_freq = 2.2
 
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_parent_folder, en_remote_dbg )
@@ -40,7 +45,22 @@ nmrObj.assertControlSignal( nmrObj.PSU_5V_TX_N_EN_msk |
                            nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk |
                            nmrObj.PSU_5V_ANA_N_EN_msk )
 
-nmrObj.setPreampTuning( -2.7, -0.4 )  # try -2.7, -1.8 if fail
+if ((target_freq < sta_freq) | (target_freq > sto_freq)):
+    print("Warning: Target frequency out of range")
+
+if (load_para):
+    # parameter from 
+    ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
+        para_folder, '/genS21Table_input.txt' )  # read file
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.05][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.05][0]]
+    
+else:
+    Vbias = -2.0
+    Vvarac = 2.8 
+
+# (vbias vvarac)
+nmrObj.setPreampTuning(Vbias, Vvarac)  #-2.5,  2.8)  # try -2.7, -1.8 if fail 
 nmrObj.setMatchingNetwork( 0, 0 )
 nmrObj.setMatchingNetwork( 0, 0 )
 

@@ -2,6 +2,8 @@
 Created on Mar 30, 2018
 
 @author: David Ariando
+
+Cheng 07/2020 Option to change matching network and preamp values automatically
 '''
 
 #!/usr/bin/python
@@ -24,6 +26,10 @@ data_folder = "/root/NMR_DATA"
 en_fig = 1
 en_remote_dbg = 0
 
+para_folder = "/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/para"
+load_para = 1
+target_freq = 2.2
+
 # nmr object declaration
 nmrObj = tunable_nmr_system_2018( data_folder, en_remote_dbg )
 
@@ -41,8 +47,26 @@ nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_
 nmrObj.deassertControlSignal( 
     nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk )
 
-nmrObj.setPreampTuning(-2.10, 2.00) #-2.5,  2.8)#-2.5,  2.6)# -2.7, 0.3 )  # try -2.7, -1.8 if fail
-nmrObj.setMatchingNetwork(512,    280)  # 4.25 MHz AFE
+if (load_para):
+    # parameter from 
+    ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
+        para_folder, '/genS11Table_final_input.txt' )  # read file
+    Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - target_freq) < 0.05][0]])
+    Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - target_freq) < 0.05][0]])
+    
+    ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
+        para_folder, '/genS21Table_input.txt' )  # read file
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.05][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.05][0]]
+    
+else:
+    Cpar = 563
+    Cser = 327
+    Vbias = -2.0
+    Vvarac = 2.8
+
+nmrObj.setPreampTuning(Vbias, Vvarac) #-2.5,  2.8)#-2.5,  2.6)# -2.7, 0.3 )  # try -2.7, -1.8 if fail
+nmrObj.setMatchingNetwork(Cpar,    Cser)  # 4.25 MHz AFE
 nmrObj.assertControlSignal( 
     nmrObj.RX_FL_msk | nmrObj.RX_FH_msk | nmrObj.RX_SEL1_msk | nmrObj.RX2_L_msk | nmrObj.RX2_H_msk | nmrObj.RX1_1L_msk | nmrObj.RX1_1H_msk | nmrObj.PAMP_IN_SEL2_msk )
 nmrObj.deassertControlSignal( nmrObj.RX_FH_msk | nmrObj.RX2_L_msk | nmrObj.RX_FH_msk )

@@ -27,6 +27,10 @@ en_remote_dbg = 0
 fig_num = 100
 direct_read = 0  # perform direct read from SDRAM. use with caution above!
 
+tx_sd_msk = 1  # 1 to shutdown 8tx opamp during reception, or 0 to keep it powered up during reception
+en_dconv = 0  # enable downconversion in the fpga
+dconv_fact = 4  # downconversion factor. minimum of 4.
+
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_folder, en_remote_dbg )
 
@@ -38,30 +42,30 @@ nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_
                            nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk |
                            nmrObj.PSU_5V_ANA_N_EN_msk )
 
-nmrObj.setPreampTuning( -2.7, 0.3 )  # try -2.7, -1.8 if fail
-nmrObj.setMatchingNetwork( 2381, 440 )  # 4.25 MHz AFE
+nmrObj.setPreampTuning( -2.1, -0.4 )    #-2.7, 0.3 )  # try -2.7, -1.8 if fail
+nmrObj.setMatchingNetwork(54,    120)  # 4.25 MHz AFE
 
 nmrObj.assertControlSignal( 
     nmrObj.RX1_1H_msk | nmrObj.RX1_1L_msk | nmrObj.RX2_L_msk | nmrObj.RX2_H_msk | nmrObj.RX_SEL1_msk | nmrObj.RX_FL_msk | nmrObj.RX_FH_msk | nmrObj.PAMP_IN_SEL2_msk )
 
 # cpmg settings
-cpmg_freq = 4.170
+cpmg_freq = 2.15
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
 echo_spacing_us = 200
 scan_spacing_us = 100000
 samples_per_echo = 1024  # number of points
-echoes_per_scan = 1024  # number of echos
+echoes_per_scan = 200  # number of echos
 init_adc_delay_compensation = 6  # acquisition shift microseconds
-number_of_iteration = 2  # number of averaging
+number_of_iteration = 20 # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
 
 # sweep settings
-pulse_us_sta = 1.0  # in microsecond
-pulse_us_sto = 10.0  # in microsecond
-pulse_us_ste = 31  # number of steps
+pulse_us_sta = 5 # in microsecond
+pulse_us_sto = 25  # in microsecond
+pulse_us_ste = 21  # number of steps
 pulse_us_sw = np.linspace( pulse_us_sta, pulse_us_sto, pulse_us_ste )
 
 a_integ_table = np.zeros( pulse_us_ste )
@@ -70,13 +74,15 @@ for i in range( 0, pulse_us_ste ):
     print( 'plength = ' + str( pulse_us_sw[i] ) + ' us' )
 
     pulse1_us = pulse_us_sw[i]  # pulse pi/2 length
-    pulse2_us = 5.5  # pulse pi length
+    pulse2_us = 1.4*pulse1_us  # pulse pi length
     nmrObj.cpmgSequence( cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
-                        echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int )
+                        echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
+                         tx_sd_msk, en_dconv, dconv_fact  )
     datain = []  # set datain to 0 because the data will be read from file instead
     meas_folder = parse_simple_info( data_folder, 'current_folder.txt' )
     ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 
-        data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_scan_fig )
+        nmrObj, data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_scan_fig)
+
     a_integ_table[i] = a_integ
     if en_fig:
         plt.ion()

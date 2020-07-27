@@ -24,8 +24,8 @@ fig_num = 1
 en_fig = 1
 
 # measurement properties
-freqSta = 2
-freqSto = 8
+freqSta = 1  
+freqSto = 3
 freqSpa = 0.05
 freqSamp = 25
 freqSw = np.arange( freqSta, freqSto + ( freqSpa / 2 ), freqSpa )  # plus half is to remove error from floating point number operation
@@ -56,13 +56,13 @@ nmrObj.assertControlSignal( nmrObj.PSU_5V_TX_N_EN_msk |
 nmrObj.setMatchingNetwork( 0, 0 )
 nmrObj.setMatchingNetwork( 0, 0 )
 
-vbiasSta = -2.1  # this value must be lower than vbiasSto
+vbiasSta = -2.5 # this value must be lower than vbiasSto
 vbiasSto = 0
-vbiasSpa = 10
+vbiasSpa = 0.1
 vbiasSw = np.arange( vbiasSta, vbiasSto, vbiasSpa )
 
-vvaracSta = -5  # this value must be lower than vvaracSto
-vvaracSto = 0
+vvaracSta = -3.5 # this value must be lower than vvaracSto
+vvaracSto = 4.8
 vvaracSpa = 0.1
 vvaracSw = np.arange( vvaracSta, vvaracSto, vvaracSpa )
 
@@ -84,9 +84,15 @@ maxGainTable[:, 3] = -10  # set column 4 to undefined initial setting voltage of
 
 for i in range( len( vvaracSw ) ):
     for j in range( len( vbiasSw ) ):
-        nmrObj.assertControlSignal( nmrObj.RX1_1L_msk | nmrObj.RX2_L_msk | nmrObj.RX_SEL1_msk | nmrObj.RX_FL_msk )
+        #nmrObj.assertControlSignal( nmrObj.RX1_1L_msk | nmrObj.RX2_L_msk | nmrObj.RX_SEL1_msk | nmrObj.RX_FL_msk )
+        #nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk | nmrObj.PSU_5V_TX_N_EN_msk |
+        #                           nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk | nmrObj.PSU_5V_ANA_N_EN_msk )
+        nmrObj.assertControlSignal( nmrObj.RX1_1L_msk | nmrObj.RX2_L_msk | nmrObj.RX2_H_msk | nmrObj.RX_SEL1_msk |
+                               nmrObj.RX_FL_msk )
         nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk | nmrObj.PSU_5V_TX_N_EN_msk |
-                                   nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk | nmrObj.PSU_5V_ANA_N_EN_msk )
+                               nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk |
+                               nmrObj.PSU_5V_ANA_N_EN_msk )
+        time.sleep( 0.1 )
         nmrObj.setPreampTuning( vbiasSw[j], vvaracSw[i] )
 
         nmrObj.pamp_char ( freqSta, freqSto, freqSpa, freqSamp )

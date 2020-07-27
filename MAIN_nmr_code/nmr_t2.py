@@ -43,18 +43,18 @@ if ( meas_time ):
     start_time = time.time()
 
 # cpmg settings
-cpmg_freq = 4.286 + ( 9 - 99 + 20 + 19 - 32.6 - 3.45 + 22.8 - 11 + 7.65 ) * 1e-3
-pulse1_us = 2.5  # 75 for Cheng's coil. pulse pi/2 length.
-pulse2_us = 5.5  # pulse pi length
+cpmg_freq = 2.07 #4.286 + ( 9 - 99 + 20 + 19 - 32.6 - 3.45 + 22.8 - 11 + 7.65 ) * 1e-3
+pulse1_us = 25  # 75 for Cheng's coil. pulse pi/2 length.
+pulse2_us = 35 # pulse pi length
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
-echo_spacing_us = 200  # 200
-scan_spacing_us = 350000
+echo_spacing_us = 300  # 200
+scan_spacing_us = 70000
 samples_per_echo = 1024  # 3072
-echoes_per_scan = 1024  # 20
+echoes_per_scan = 200  # 20
 # put to 10 for broadband board and 6 for tunable board
-init_adc_delay_compensation = 6  # acquisition shift microseconds.
-number_of_iteration = 8  # number of averaging
+init_adc_delay_compensation = 20 #6  # acquisition shift microseconds.
+number_of_iteration = 1000  # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
@@ -70,7 +70,7 @@ coilLength = 36e-3
 numTurns = 37
 coilFactor = 0.675  # measured_eff_p90/calc'ed_p90. Equal to 1 for calc'ed_p90
 # magnet param
-B0 = 0.099  # T
+B0 = 0.044  # T
 gamma = 42.57  # MHz/T
 print( "freq estimate: %3.3f MHz" % ( gamma * B0 ) )
 P90, Pwatt = calcP90( Vpp, rs, L, cpmg_freq * 1e6,
@@ -89,9 +89,9 @@ nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_
 # nmrObj.deassertControlSignal(
 #    nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk)
 
-nmrObj.setPreampTuning( -2.1, -0.4 )  # try -2.7, -1.8 if fail
-nmrObj.setMatchingNetwork( 2381, 439 )  # 4.25 MHz AFE
-nmrObj.setMatchingNetwork( 2381, 439 )
+nmrObj.setPreampTuning(  -2.00,2.80 )  # try -2.7, -1.8 if fail
+nmrObj.setMatchingNetwork(563,    327)  # 4.25 MHz AFE
+nmrObj.setMatchingNetwork(563,    327)
 
 if ( nmrObj.PCBVer == 'v4.0_and_below' ):
     nmrObj.assertControlSignal( nmrObj.AMP_HP_LT1210_EN_msk |
@@ -136,7 +136,7 @@ nmrObj.deassertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_E
 if ( process_data ):
     meas_folder = parse_simple_info( data_folder, 'current_folder.txt' )
     ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 
-        data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_fig )
+      nmrObj, data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_fig )
 
 if ( meas_time ):
     elapsed_time = time.time() - start_time

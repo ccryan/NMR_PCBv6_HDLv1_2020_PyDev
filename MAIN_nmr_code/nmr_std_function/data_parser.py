@@ -55,6 +55,23 @@ def parse_csv_float3col( data_folder, file_name ):
     f.close()
     return data1, data2, data3
 
+def parse_csv_float4col_s11( data_folder, file_name ):
+    file_path = data_folder + "/" + file_name
+    f = open( file_path )
+    csv_f = csv.reader( f, delimiter = ',' )
+    #all(next(csv_f) for i in range(30)) # skip settings and header
+    data1 = []
+    data2 = []
+    data3 = []
+    data4 = []
+    for a in csv_f:
+        data1.append( float( a[0] ) )
+        data2.append( float( a[1] ) )
+        data3.append( float( a[2] ) )
+        data4.append( float( a[3] ) )
+    f.close()
+    return data1,data2,data3,data4
+
 
 def parse_info( data_folder, file_name ):
     # filename = "CPMG_iterate_settings.txt"

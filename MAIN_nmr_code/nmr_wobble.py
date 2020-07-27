@@ -10,20 +10,26 @@ import time
 from nmr_std_function.nmr_functions import compute_iterate
 from nmr_std_function.nmr_functions import compute_wobble
 from nmr_std_function.data_parser import parse_simple_info
+from nmr_std_function import data_parser
 from nmr_std_function.nmr_class import tunable_nmr_system_2018
 
 # variables
 data_parent_folder = "/root/NMR_DATA"
+
 en_remote_dbg = 0
 fig_num = 1
 en_fig = 1
 meas_time = 1
 
+para_folder = "/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/para"
+load_para = 1
+
 # measurement properties
-sta_freq = 2
-sto_freq = 8
+sta_freq = 1.5
+sto_freq = 2.5
 spac_freq = 0.01
 samp_freq = 25
+target_freq = 2.2
 
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_parent_folder, en_remote_dbg )
@@ -40,7 +46,7 @@ nmrObj.assertControlSignal( nmrObj.PSU_5V_TX_N_EN_msk |
                            nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk |
                            nmrObj.PSU_5V_ANA_N_EN_msk )
 
-nmrObj.setPreampTuning( -2.7, 0.3 )  # try -2.7, -1.8 if fail
+nmrObj.setPreampTuning(-1.80, 3.9)#-2.5,  2.6)  # try -2.7, -1.8 if fail
 
 
 def runExpt( cparVal, cserVal, S11mV_ref, useRef ):
@@ -80,11 +86,24 @@ def runExpt( cparVal, cserVal, S11mV_ref, useRef ):
 
     return S11dB, minS11_freq
 
+if ((target_freq < sta_freq) | (target_freq > sto_freq)):
+    print("Warning: Target frequency out of range")
 
 # find reference
 print( 'Generate reference.' )
 S11mV_ref, minS11Freq_ref = runExpt( 0, 0, 0, 0 )  # background is computed with no capacitor connected -> max reflection
 
+if (load_para):
+    # parameter from 
+    ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
+        para_folder, '/genS11Table_final_input.txt' )  # read file
+    Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - target_freq) < 0.05][0]])
+    Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - target_freq) < 0.05][0]])
+    
+else:
+    Cpar = 598
+    Cser = 352
+    
 while True:
-    runExpt( 1930, 280, S11mV_ref, 1 )
+    runExpt(Cpar,    Cser,  S11mV_ref, 1 )
 

@@ -385,7 +385,7 @@ def compute_multiple( nmrObj, data_parent_folder, meas_folder, file_name_prefix,
 
         # raw average data
         echo_rawavg = np.zeros( SpE, dtype = float )
-        for i in range( 0, NoE ):
+        for i in range(3, 120 ):
             echo_rawavg += ( data[i * SpE:( i + 1 ) * SpE] / NoE )
 
         if en_fig:  # plot echo rawavg

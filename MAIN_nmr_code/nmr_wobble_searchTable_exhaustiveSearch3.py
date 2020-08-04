@@ -59,8 +59,8 @@ meas_time = 0  # measure time
 
 # acquisition settings (frequency to be shown in the table
 freqSta = 1
-freqSto = 4
-freqSpa = 0.05
+freqSto = 3
+freqSpa = 0.01
 freqSamp = 25
 freqSw = np.arange( freqSta, freqSto + ( freqSpa / 2 ), freqSpa )  # plus half is to remove error from floating point number operation
 
@@ -282,17 +282,14 @@ def readTable( minReflxTable_tmp ):
 print( 'Generate reference.' )
 S11mV_ref, minS11Freq_ref = runExpt( 0, 0, 0, 0 )  # background is computed with no capacitor connected -> max reflection
 
-# find reference
-print( 'Generate reference.' )
-S11mV_ref, minS11Freq_ref = runExpt( 0, 0, 0, 0 )  # background is computed with no capacitor connected -> max reflection
-
 MinS11mV = np.min(S11mV_ref)  # find the minimum S11 value
 
 print( "\tStart findMinS11" )
-for cpar_i in range(1200, 1400, 1):
-    up_end = int(cpar_i/2)
+for cpar_i in range(600, 1000, 5):
+    up_end = int(cpar_i/1.8)
+    low_end = int(cpar_i/3)
     # run a quick search
-    for cser_i in range(up_end-500, up_end, 10):
+    for cser_i in range(low_end, up_end, 10):
         S11dBCurr, minS11FreqCurr= runExpt( cpar_i, cser_i , S11mV_ref, 'True'  )
     # search around best s11
     cpar_opt, cser_opt = readTable(minReflxTable_tmp)
@@ -300,9 +297,10 @@ for cpar_i in range(1200, 1400, 1):
     if cser_opt - 30 < 0:
         cser_lower_end = 0
     # finer search
-    for cser_i in range(int(cser_opt-30), int(cser_opt + 30), 1):
+    for cser_i in range(int(cser_opt-15), int(cser_opt + 15), 1):
         S11dBCurr, minS11FreqCurr= runExpt( cpar_i, cser_i , S11mV_ref, 'True'  )
-    minReflxTable_tmp = np.zeros( ( len( freqSw ), 4 ), dtype = float )
+    minReflxTable_tmp = np.zeros( ( len( freqSw ), 4 ), dtype = float ) 
+    
 
 '''
 

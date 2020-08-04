@@ -99,7 +99,7 @@ class tunable_nmr_system_2018:
             # self.___(9)
             # self.___(10)
             # self.PAMP_RDY_msk = (1 << self.PAMP_RDY_ofst)
-            self.RX1_1H_msk = ( 1 << self.RX1_1H_ofst )
+            self.RX1_1H_msk = ( 0 << self.RX1_1H_ofst )
             self.RX1_1L_msk = ( 1 << self.RX1_1L_ofst )
             self.RX2_H_msk = ( 1 << self.RX2_H_ofst )
             self.RX2_L_msk = ( 1 << self.RX2_L_ofst )
@@ -157,7 +157,7 @@ class tunable_nmr_system_2018:
 
         # ip addresses settings for the system
         self.server_ip = '192.168.137.3'  # '129.22.143.88'
-        self.client_ip = '192.168.137.202'  # '129.22.143.39'
+        self.client_ip = '192.168.137.68'  # '129.22.143.39'
         self.server_path = '/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/'
         # client path with samba
         self.client_path = 'V:\\nmr_pcb20_hdl10_2018\\MAIN_nmr_code\\'

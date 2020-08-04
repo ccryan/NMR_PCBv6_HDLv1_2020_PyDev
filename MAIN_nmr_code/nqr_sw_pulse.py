@@ -74,7 +74,7 @@ for i in range( 0, pulse_us_ste ):
     print( 'plength = ' + str( pulse_us_sw[i] ) + ' us' )
 
     pulse1_us = pulse_us_sw[i]  # pulse pi/2 length
-    pulse2_us = pulse_us_sw[i]  # pulse pi length
+    pulse2_us = pulse_us_sw[i] # pulse pi length
     nmrObj.cpmgSequence( cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
                         echoes_per_scan, init_adc_delay_compensation, number_of_iteration,
                         ph_cycl_en, pulse180_t1_int, delay180_t1_int , tx_sd_msk, en_dconv, dconv_fact )

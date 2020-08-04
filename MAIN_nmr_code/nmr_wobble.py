@@ -29,7 +29,7 @@ sta_freq = 1.5
 sto_freq = 2.5
 spac_freq = 0.01
 samp_freq = 25
-target_freq = 2.2
+target_freq = 1.76
 
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_parent_folder, en_remote_dbg )
@@ -46,7 +46,7 @@ nmrObj.assertControlSignal( nmrObj.PSU_5V_TX_N_EN_msk |
                            nmrObj.PSU_5V_ADC_EN_msk | nmrObj.PSU_5V_ANA_P_EN_msk |
                            nmrObj.PSU_5V_ANA_N_EN_msk )
 
-nmrObj.setPreampTuning(-1.80, 3.9)#-2.5,  2.6)  # try -2.7, -1.8 if fail
+nmrObj.setPreampTuning(-2, 3.5)#-2.5,  2.6)  # try -2.7, -1.8 if fail
 
 
 def runExpt( cparVal, cserVal, S11mV_ref, useRef ):
@@ -92,13 +92,13 @@ if ((target_freq < sta_freq) | (target_freq > sto_freq)):
 # find reference
 print( 'Generate reference.' )
 S11mV_ref, minS11Freq_ref = runExpt( 0, 0, 0, 0 )  # background is computed with no capacitor connected -> max reflection
-
+freq = target_freq - 0.04 # freq compensation
 if (load_para):
     # parameter from 
     ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
         para_folder, '/genS11Table_final_input.txt' )  # read file
-    Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - target_freq) < 0.05][0]])
-    Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - target_freq) < 0.05][0]])
+    Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq) < 0.05][0]])
+    Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq) < 0.05][0]])
     
 else:
     Cpar = 598

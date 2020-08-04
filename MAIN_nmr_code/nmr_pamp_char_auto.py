@@ -4,6 +4,8 @@ Created on May 04, 2020
 This module characterizes the preamp gain and show the gain over frequency
 
 @author: David Ariando
+
+Edits: Cheng Chen, 07/2020, add automatic tuning
 '''
 
 import os
@@ -25,11 +27,11 @@ load_para = 1
 
 # measurement properties
 sta_freq = 1
-sto_freq = 10
-spac_freq = 0.05
+sto_freq = 3
+spac_freq = 0.01
 samp_freq = 25
 
-target_freq = 2.2
+target_freq = 2.0
 
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_parent_folder, en_remote_dbg )
@@ -83,3 +85,8 @@ while True:
     maxS21, maxS21_freq, _ = compute_gain( nmrObj, data_parent_folder, meas_folder[0], en_fig, fig_num )
     print( 'maxS21={0:0.2f} maxS21_freq={1:0.2f}'.format( 
          maxS21, maxS21_freq ) )
+    
+    dst_pat = ( data_parent_folder + '/' +  meas_folder[0] + '/' )
+    data_parser.write_text_append(dst_pat, 'acqu.par', 'target_freq = {}'.format(target_freq))
+    data_parser.write_text_append(dst_pat, 'acqu.par', 'Vbias = {}'.format(Vbias))
+    data_parser.write_text_append(dst_pat, 'acqu.par', 'Vvarac = {}'.format(Vvarac))

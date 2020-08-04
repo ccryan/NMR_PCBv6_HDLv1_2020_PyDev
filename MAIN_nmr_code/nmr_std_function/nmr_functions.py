@@ -107,9 +107,14 @@ def compute_wobble( nmrObj, data_parent_folder, meas_folder, s11_min, S11mV_ref,
         plt.savefig( data_folder + 'wobble.png' )
 
     # write S11mV to a file
-    with open( data_folder + 'S11mV.txt', 'w' ) as f:
+    with open( data_folder + 'S11dB.txt', 'w' ) as f:
         for ( a, b, c ) in zip ( freqSw, S11dB, S11_ph ):
             f.write( '{:-8.3f},{:-8.3f},{:-7.1f}\n' .format( a, b, c ) )
+            
+    if useRef: 
+        with open( data_folder + 'S11mV.txt', 'w' ) as f:
+            for ( a, b, c ) in zip ( freqSw, S11mV, S11mV_ref ):
+                f.write( '{:-8.3f},{:-8.3f},{:-8.3f}\n' .format( a, b, c ) )
 
     # print(S11_fmin, S11_fmax, S11_bw)
     if useRef:

@@ -20,7 +20,7 @@ Cheng 07/2020 Option to change matching network and preamp values automatically
 # settings
 data_folder = "/root/NMR_DATA"  # the nmr data folder
 en_fig = 1  # enable figure
-en_remote_dbg = 1  # enable remote debugging. Enable debug server first!
+en_remote_dbg = 0  # enable remote debugging. Enable debug server first!
 direct_read = 0  # perform direct read from SDRAM. use with caution above!
 meas_time = 1  # measure time
 process_data = 0  # process data within the SoC
@@ -50,9 +50,9 @@ if ( meas_time ):
     start_time = time.time()
 
 # cpmg settings
-cpmg_freq = 2.03 #4.286 + ( 9 - 99 + 20 + 19 - 32.6 - 3.45 + 22.8 - 11 + 7.65 ) * 1e-3
-pulse1_us = 25  # 75 for Cheng's coil. pulse pi/2 length.
-pulse2_us = 35 # pulse pi length
+cpmg_freq = 2.0 #4.286 + ( 9 - 99 + 20 + 19 - 32.6 - 3.45 + 22.8 - 11 + 7.65 ) * 1e-3
+pulse1_us = 30  # 75 for Cheng's coil. pulse pi/2 length.
+pulse2_us = 37 # pulse pi length
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
 echo_spacing_us = 300  # 200
@@ -96,18 +96,20 @@ nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_
 # nmrObj.deassertControlSignal(
 #    nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk)
 
+freq_comp = cpmg_freq #+ 0.03
+freqS21_comp = cpmg_freq + 0.03
 
 if (load_para):
     # parameter from 
     ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
-        para_folder, '/genS11Table_final_input.txt' )  # read file
-    Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - cpmg_freq) < 0.05][0]])
-    Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - cpmg_freq) < 0.05][0]])
+        para_folder, '/genS11Table_final_input_10k.txt' )  # read file
+    Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq_comp) < 0.01][0]])
+    Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq_comp) < 0.01][0]])
     
     ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
         para_folder, '/genS21Table_input.txt' )  # read file
-    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - cpmg_freq) < 0.05][0]]
-    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - cpmg_freq) < 0.05][0]]
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freq_comp) < 0.05][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freq_comp) < 0.05][0]]
     
 else:
     Cpar = 563

@@ -157,7 +157,7 @@ class tunable_nmr_system_2018:
 
         # ip addresses settings for the system
         self.server_ip = '192.168.137.3'  # '129.22.143.88'
-        self.client_ip = '192.168.137.68'  # '129.22.143.39'
+        self.client_ip = '192.168.137.14'  # '129.22.143.39'
         self.server_path = '/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/'
         # client path with samba
         self.client_path = 'V:\\nmr_pcb20_hdl10_2018\\MAIN_nmr_code\\'
@@ -288,7 +288,7 @@ class tunable_nmr_system_2018:
             exec_name = "cpmg_iterate_dconv"
         else:
             exec_name = "cpmg_iterate_raw"
-
+ 
         command = ( self.work_dir + self.exec_folder + exec_name + " " +
                    str( cpmg_freq ) + " " +
                    str( pulse1_us ) + " " +
@@ -309,6 +309,69 @@ class tunable_nmr_system_2018:
                    )
         os.system( command )  # execute command & ignore its console
 
+    def cpmgSequenceJump( self, cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo, echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int , tx_sd_msk, en_dconv , dconv_fact, num_freq, Cpar, Cser, Vbias, Vvarac ):
+            # execute cpmg sequence
+        if ( en_dconv ):
+            exec_name = "cpmg_iterate_jump_dconv"
+        else:
+            exec_name = "cpmg_iterate_jump_raw"
+        command = ( self.work_dir + self.exec_folder + exec_name + " " +
+                   str( cpmg_freq[0] ) + " " +
+                   str( cpmg_freq[1] ) + " " +
+                   str( cpmg_freq[2] ) + " " +
+                   str( cpmg_freq[3] ) + " " +
+                   
+                   str( pulse1_us[0] ) + " " +
+                   str( pulse1_us[1] ) + " " +
+                   str( pulse1_us[2] ) + " " +
+                   str( pulse1_us[3] ) + " " +
+                   
+                   str( pulse2_us[0] ) + " " +
+                   str( pulse2_us[1] ) + " " +
+                   str( pulse2_us[2] ) + " " +
+                   str( pulse2_us[3] ) + " " +
+                   
+                   str( pulse1_dtcl ) + " " +
+                   str( pulse2_dtcl ) + " " +
+                   str( echo_spacing_us ) + " " +
+                   str( scan_spacing_us ) + " " +
+                   str( samples_per_echo ) + " " +
+                   str( echoes_per_scan ) + " " +
+                   
+                   str( init_adc_delay_compensation[0] ) + " " +
+                   str( init_adc_delay_compensation[1] ) + " " +
+                   str( init_adc_delay_compensation[2] ) + " " +
+                   str( init_adc_delay_compensation[3] ) + " " +
+                   
+                   str( number_of_iteration ) + " " +
+                   str( ph_cycl_en ) + " " +
+                   str( pulse180_t1_int ) + " " +
+                   str( delay180_t1_int ) + " " +
+                   str( tx_sd_msk ) + " " +
+                   str( dconv_fact ) + " " +
+                   str( num_freq) + " " +
+                   
+                   str( Cpar[0] ) + " " +
+                   str( Cpar[1] ) + " " +
+                   str( Cpar[2] ) + " " +
+                   str( Cpar[3] ) + " " +
+                   str( Cser[0] ) + " " +
+                   str( Cser[1] ) + " " +
+                   str( Cser[2] ) + " " +
+                   str( Cser[3] ) + " " +
+                   
+                   str( Vbias[0] ) + " " +
+                   str( Vbias[1] ) + " " +
+                   str( Vbias[2] ) + " " +
+                   str( Vbias[3] ) + " " +
+                   str( Vvarac[0] ) + " " +
+                   str( Vvarac[1] ) + " " +
+                   str( Vvarac[2] ) + " " +
+                   str( Vvarac[3] )
+                   )
+        os.system( command )  # execute command & ignore its console
+
+    
     def cpmgSequenceDirectRead( self, cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo, echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int ):
         data = np.zeros( samples_per_echo * echoes_per_scan )
 

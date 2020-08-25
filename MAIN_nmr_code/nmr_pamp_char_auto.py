@@ -31,7 +31,7 @@ sto_freq = 3
 spac_freq = 0.01
 samp_freq = 25
 
-target_freq = 2.0
+target_freq = 1.97
 
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_parent_folder, en_remote_dbg )
@@ -54,9 +54,9 @@ if ((target_freq < sta_freq) | (target_freq > sto_freq)):
 if (load_para):
     # parameter from 
     ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
-        para_folder, '/genS21Table_input.txt' )  # read file
-    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.05][0]]
-    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.05][0]]
+        para_folder, '/genS21Table_input_10k.txt' )  # read file
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.01][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - target_freq) < 0.01][0]]
     
 else:
     Vbias = -2.0

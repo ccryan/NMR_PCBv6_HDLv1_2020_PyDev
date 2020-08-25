@@ -30,7 +30,7 @@ en_remote_dbg = 0
 
 para_folder = "/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/para"
 load_para = 1
-target_freq =  1.83
+target_freq =  2.03
 
 # define the name of the directory to be created
 same_folder = 1
@@ -55,8 +55,8 @@ nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_
 nmrObj.deassertControlSignal( 
     nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk )
 
-freq_comp = target_freq #+ 0.03
-freqS21_comp = target_freq + 0.03
+freq_comp = target_freq+0.10
+freqS21_comp = target_freq
 if (load_para):
     # parameter from 
     ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
@@ -64,10 +64,13 @@ if (load_para):
     Cpar = int(CparList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq_comp) < 0.01][0]])
     Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq_comp) < 0.01][0]])
     
+    #Cpar = 0
+    #Cser = 0
+    
     ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
-        para_folder, '/genS21Table_input.txt' )  # read file
-    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.05][0]]
-    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.05][0]]
+        para_folder, '/genS21Table_input_10k.txt' )  # read file
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.01][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.01][0]]
     
 else:
     Cpar = 563

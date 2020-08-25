@@ -4,6 +4,8 @@ Created on Mar 30, 2018
 @author: David Ariando
 
 Edits: Cheng Chen, 07/2020, add automatic tuning
+08/2020, run in 10KHz spacing
+Just one frequency
 '''
 
 #!/usr/bin/python
@@ -43,29 +45,36 @@ load_para = 1 # load parameter for matching network and preamp
 nmrObj = tunable_nmr_system_2018( data_folder, en_remote_dbg )
 
 # cpmg settings
-cpmg_freq = 2.1
+#cpmg_freq = 1.99
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
-echo_spacing_us = 500
-scan_spacing_us = 40000
-samples_per_echo = 2048  # number of points
-echoes_per_scan = 70  # number of echos
-init_adc_delay_compensation = 30  # acquisition shift microseconds
-number_of_iteration = 200 # number of averaging
+echo_spacing_us = 350
+scan_spacing_us = 22000
+samples_per_echo = 1024  # number of points
+echoes_per_scan = 40  # number of echos
+init_adc_delay_compensation = 20  # acquisition shift microseconds
+number_of_iteration = 10 # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
 
+pulse1_us = 55  # pulse pi/2 length
+pulse2_us = 75 #pulse_us_sw[i]  # pulse pi length
+
 # sweep settings
-pulse_us_sta = 5 # in microsecond
-pulse_us_sto = 65  # in microsecond
-pulse_us_ste = 13 # number of steps
-pulse_us_sw = np.linspace( pulse_us_sta, pulse_us_sto, pulse_us_ste )
+Freq_step = 1 # number of steps
 
-P90 = np.zeros(pulse_us_ste)
-P180 = np.zeros(pulse_us_ste)
+cpmg_freq_sta = 2.18 # in MHz
+cpmg_freq_sto = 2.18  # in MHz
+cpmg_freq_sw = np.linspace(cpmg_freq_sta, cpmg_freq_sto, Freq_step)
 
-# system setup
+cpmg_freq_sw[0]=2.04
+cpmg_freq_sta = number_of_iteration # in MHz
+cpmg_freq_sto = number_of_iteration  # in MHz
+cpmg_NI_sw = np.linspace(cpmg_freq_sta, cpmg_freq_sto, Freq_step)
+
+cpmg_NI_sw[0]=8000
+
 # system setup
 nmrObj.initNmrSystem()  # necessary to set the GPIO initial setting
 # nmrObj.turnOnPower()
@@ -79,7 +88,7 @@ now = datetime.now()
 datename = now.strftime( "%Y_%m_%d_%H_%M_%S" )
 
 # define the name of the directory to be created
-dst_path = data_folder + '/' + datename + '_PulseSweep'
+dst_path = data_folder + '/' + datename + '_FreqSweep'
 
 try:
     os.mkdir(dst_path)
@@ -88,20 +97,18 @@ except OSError:
 else:
     print ("Successfully created the directory %s " % dst_path)
 
-a_integ_table = np.zeros( pulse_us_ste )
-for i in range( 0, pulse_us_ste ):
+a_integ_table = np.zeros( Freq_step )
+for i in range( 0, Freq_step ):
     print( '----------------------------------' )
-    print( 'plength = ' + str( pulse_us_sw[i] ) + ' us' )
+    print( 'frequency = ' + str( cpmg_freq_sw[i] ) + ' MHz' )
 
-    pulse1_us = pulse_us_sw[i]  # pulse pi/2 length
-    pulse2_us = 1.5*pulse_us_sw[i]   #pulse1_us*1.8   # pulse pi length
-    P90[i]=pulse1_us
-    P180[i]=pulse2_us
-    #cpmg_freq=cpmg_freq
+    
+    #cpmg_freq=cpmg_freq_sw[i]
     
      # compensate for setup 
-    freq_comp = cpmg_freq+0.10
-    freqS21_comp = cpmg_freq
+    freq_comp = cpmg_freq_sw[i] #+ 0.03
+    freqS21_comp = cpmg_freq_sw[i]
+    number_of_iteration=cpmg_NI_sw[i]
     if (load_para):
         # parameter from 
         ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
@@ -125,15 +132,20 @@ for i in range( 0, pulse_us_ste ):
     nmrObj.assertControlSignal( 
     nmrObj.RX1_1H_msk | nmrObj.RX1_1L_msk | nmrObj.RX2_L_msk | nmrObj.RX2_H_msk | nmrObj.RX_SEL1_msk | nmrObj.RX_FL_msk | nmrObj.RX_FH_msk | nmrObj.PAMP_IN_SEL2_msk )
      
-    nmrObj.cpmgSequence( cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
+    nmrObj.cpmgSequence( cpmg_freq_sw[i], pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
                         echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
                          tx_sd_msk, en_dconv, dconv_fact  )
     datain = []  # set datain to 0 because the data will be read from file instead
     meas_folder = parse_simple_info( data_folder, 'current_folder.txt' )
 
-    src_file = ( data_folder + '/' + meas_folder[0] + '/asum')
-    dst_file = ( dst_path + '/asum_{}'.format(i))
-    shutil.copy2(src_file, dst_file)
+    if  en_dconv:
+        src_file = ( data_folder + '/' + meas_folder[0] + '/dconv')
+        dst_file = ( dst_path + '/dconv_{}'.format(i))
+        shutil.copy2(src_file, dst_file)
+    else:
+        src_file = ( data_folder + '/' + meas_folder[0] + '/asum')
+        dst_file = ( dst_path + '/asum_{}'.format(i))
+        shutil.copy2(src_file, dst_file)      
     
     if process_data:
         ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 
@@ -146,7 +158,7 @@ for i in range( 0, pulse_us_ste ):
         fig = plt.figure( fig_num )
         fig.clf()
         ax = fig.add_subplot( 1, 1, 1 )
-        line1, = ax.plot( pulse_us_sw[0:i + 1], a_integ_table[0:i + 1], 'b-o' )
+        line1, = ax.plot( cpmg_freq_sw[0:i + 1], a_integ_table[0:i + 1], 'b-o' )
         # ax.set_ylim(-50, 0)
         # ax.set_xlabel('Frequency [MHz]')
         # ax.set_ylabel('S11 [dB]')
@@ -166,10 +178,8 @@ nmrObj.deassertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_E
 
 shutil.copy2(data_folder + '/' + meas_folder[0] + '/acqu.par', dst_path)
 
-for kk in range( 0, pulse_us_ste ):
-    data_parser.write_text_append(dst_path, 'acqu.par', 'P90 = {}'.format(P90[kk]))
-for kk in range( 0, pulse_us_ste ):
-    data_parser.write_text_append(dst_path, 'acqu.par', 'P180 = {}'.format(P180[kk]))
+for kk in range( 0, Freq_step ):
+    data_parser.write_text_append(dst_path, 'acqu.par', 'Freq = {}'.format(cpmg_freq_sw[kk]))
 
 if en_fig:
     fig.savefig( dst_path + '/' + datename + '_pulsesw.pdf' )

@@ -26,7 +26,7 @@ en_fig = 1
 # measurement properties
 freqSta = 1  
 freqSto = 3
-freqSpa = 0.05
+freqSpa = 0.01
 freqSamp = 25
 freqSw = np.arange( freqSta, freqSto + ( freqSpa / 2 ), freqSpa )  # plus half is to remove error from floating point number operation
 
@@ -62,7 +62,7 @@ vbiasSpa = 0.1
 vbiasSw = np.arange( vbiasSta, vbiasSto, vbiasSpa )
 
 vvaracSta = -3.5 # this value must be lower than vvaracSto
-vvaracSto = 4.8
+vvaracSto = 4.9
 vvaracSpa = 0.1
 vvaracSw = np.arange( vvaracSta, vvaracSto, vvaracSpa )
 

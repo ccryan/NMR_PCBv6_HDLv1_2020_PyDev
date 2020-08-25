@@ -4,6 +4,7 @@ Created on Mar 30, 2018
 @author: David Ariando
 
 Edits: Cheng Chen, 07/2020, add automatic tuning
+08/2020, run in 10KHz spacing
 '''
 
 #!/usr/bin/python
@@ -32,7 +33,7 @@ fig_num = 100
 direct_read = 0  # perform direct read from SDRAM. use with caution above!
 
 tx_sd_msk = 1  # 1 to shutdown 8tx opamp during reception, or 0 to keep it powered up during reception
-en_dconv = 0  # enable downconversion in the fpga
+en_dconv = 1  # enable downconversion in the fpga
 dconv_fact = 4  # downconversion factor. minimum of 4.
 
 process_data = 0
@@ -46,38 +47,64 @@ nmrObj = tunable_nmr_system_2018( data_folder, en_remote_dbg )
 #cpmg_freq = 1.99
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
-echo_spacing_us = 400
-scan_spacing_us = 70000
-samples_per_echo = 1024  # number of points
-echoes_per_scan = 150  # number of echos
-init_adc_delay_compensation = 30  # acquisition shift microseconds
-number_of_iteration = 2000 # number of averaging
+echo_spacing_us = 500
+scan_spacing_us = 22000
+samples_per_echo = 2048  # number of points
+echoes_per_scan = 40  # number of echos
+init_adc_delay_compensation = 20  # acquisition shift microseconds
+number_of_iteration = 1000 # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
 
 pulse1_us = 30  # pulse pi/2 length
-pulse2_us = 37 #pulse_us_sw[i]  # pulse pi length
+pulse2_us = 45 #pulse_us_sw[i]  # pulse pi length
 
 # sweep settings
-Freq_step = 5 # number of steps
+Freq_step = 1 # number of steps
 
-cpmg_freq_sta = 2.0 # in MHz
-cpmg_freq_sto = 2.0  # in MHz
+cpmg_freq_sta = 2.18 # in MHz
+cpmg_freq_sto = 2.18  # in MHz
 cpmg_freq_sw = np.linspace(cpmg_freq_sta, cpmg_freq_sto, Freq_step)
 
-#cpmg_freq_sw[0]=2.12
-cpmg_freq_sw[0]=1.98
-cpmg_freq_sw[1]=2.0
-cpmg_freq_sw[2]=1.94
-cpmg_freq_sw[3]=1.89
-cpmg_freq_sw[4]=1.83
-#cpmg_freq_sw[5]=1.81
-#cpmg_freq_sw[6]=1.74
-#cpmg_freq_sw[7]=1.66
-#cpmg_freq_sw[8]=1.78
+cpmg_freq_sw[0]=2.02
+#cpmg_freq_sw[1]=2.12
+#cpmg_freq_sw[2]=2.08
+#cpmg_freq_sw[3]=2.03
+#cpmg_freq_sw[4]=1.99
+#cpmg_freq_sw[5]=1.95
+#cpmg_freq_sw[6]=1.91
+#cpmg_freq_sw[7]=1.87
+#cpmg_freq_sw[8]=1.83
 #cpmg_freq_sw[9]=1.79
-#cpmg_freq_sw[10]=1.80
+#cpmg_freq_sw[10]=1.75
+#cpmg_freq_sw[11]=1.71
+#cpmg_freq_sw[12]=1.76
+#cpmg_freq_sw[13]=1.73
+#cpmg_freq_sw[14]=1.70
+#cpmg_freq_sw[15]=1.67
+
+cpmg_freq_sta = number_of_iteration # in MHz
+cpmg_freq_sto = number_of_iteration  # in MHz
+cpmg_NI_sw = np.linspace(cpmg_freq_sta, cpmg_freq_sto, Freq_step)
+
+cpmg_NI_sw[0]=10
+#cpmg_NI_sw[1]=8000
+#cpmg_NI_sw[2]=8000
+#cpmg_NI_sw[3]=8000
+#cpmg_NI_sw[4]=8000
+#cpmg_NI_sw[5]=8000
+#cpmg_NI_sw[6]=8000
+#cpmg_NI_sw[7]=8000
+#cpmg_NI_sw[8]=8000
+#cpmg_NI_sw[9]=8000
+#cpmg_NI_sw[10]=8000
+#cpmg_NI_sw[11]=8000
+#cpmg_NI_sw[12]=8000
+#cpmg_NI_sw[13]=8000
+#cpmg_NI_sw[14]=8000
+#cpmg_NI_sw[15]=8000
+
 
 # system setup
 # system setup
@@ -93,7 +120,7 @@ now = datetime.now()
 datename = now.strftime( "%Y_%m_%d_%H_%M_%S" )
 
 # define the name of the directory to be created
-dst_path = data_folder + '/' + datename + '_PulseSweep'
+dst_path = data_folder + '/' + datename + '_FreqSweep'
 
 try:
     os.mkdir(dst_path)
@@ -111,8 +138,9 @@ for i in range( 0, Freq_step ):
     #cpmg_freq=cpmg_freq_sw[i]
     
      # compensate for setup 
-    freq_comp = cpmg_freq_sw[i] #+ 0.03
-    freqS21_comp = cpmg_freq_sw[i] + 0.03
+    freq_comp = cpmg_freq_sw[i]+0.10
+    freqS21_comp = cpmg_freq_sw[i]
+    number_of_iteration=cpmg_NI_sw[i]
     if (load_para):
         # parameter from 
         ( FreqList, s11List, CparList, CserList ) = data_parser.parse_csv_float4col_s11( 
@@ -121,9 +149,9 @@ for i in range( 0, Freq_step ):
         Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq_comp) < 0.01][0]])
         
         ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
-            para_folder, '/genS21Table_input.txt' )  # read file
-        Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.05][0]]
-        Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.05][0]]
+            para_folder, '/genS21Table_input_10k.txt' )  # read file
+        Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.01][0]]
+        Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.01][0]]
     else:
         Cpar = 563
         Cser = 327
@@ -136,15 +164,23 @@ for i in range( 0, Freq_step ):
     nmrObj.assertControlSignal( 
     nmrObj.RX1_1H_msk | nmrObj.RX1_1L_msk | nmrObj.RX2_L_msk | nmrObj.RX2_H_msk | nmrObj.RX_SEL1_msk | nmrObj.RX_FL_msk | nmrObj.RX_FH_msk | nmrObj.PAMP_IN_SEL2_msk )
      
+    #nmrObj.cpmgSequence( cpmg_freq_sw[i], pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
+    #                    echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
+    #                     tx_sd_msk, en_dconv, dconv_fact  )
     nmrObj.cpmgSequence( cpmg_freq_sw[i], pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
-                        echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
-                         tx_sd_msk, en_dconv, dconv_fact  )
+                    echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
+                     tx_sd_msk, en_dconv, dconv_fact  )
     datain = []  # set datain to 0 because the data will be read from file instead
     meas_folder = parse_simple_info( data_folder, 'current_folder.txt' )
 
-    src_file = ( data_folder + '/' + meas_folder[0] + '/asum')
-    dst_file = ( dst_path + '/asum_{}'.format(i))
-    shutil.copy2(src_file, dst_file)
+    if  en_dconv:
+        src_file = ( data_folder + '/' + meas_folder[0] + '/dconv')
+        dst_file = ( dst_path + '/dconv_{}'.format(i))
+        shutil.copy2(src_file, dst_file)
+    else:
+        src_file = ( data_folder + '/' + meas_folder[0] + '/asum')
+        dst_file = ( dst_path + '/asum_{}'.format(i))
+        shutil.copy2(src_file, dst_file)      
     
     if process_data:
         ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 

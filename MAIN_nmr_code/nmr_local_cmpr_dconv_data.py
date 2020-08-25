@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 from nmr_std_function import data_parser
 import numpy as np
 
-data_folder = 'Z:/NMR_DATA'
-fold1 = '2020_05_18_23_23_49_cpmg'
-fold2 = '2020_05_18_23_24_28_cpmg'
+data_folder = 'V:/NMR_DATA'
+fold1 = '2020_08_11_12_51_18_cpmg'
+fold2 = '2020_08_11_12_51_18_cpmg'
 
 filename = 'dat_001'
 

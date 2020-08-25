@@ -56,17 +56,17 @@ pulse2_us = 37 # pulse pi length
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
 echo_spacing_us = 300  # 200
-scan_spacing_us = 70000
+scan_spacing_us = 20000
 samples_per_echo = 1024  # 3072
-echoes_per_scan = 200  # 20
+echoes_per_scan = 30  # 20
 # put to 10 for broadband board and 6 for tunable board
 init_adc_delay_compensation = 20 #6  # acquisition shift microseconds.
-number_of_iteration = 1000  # number of averaging
+number_of_iteration = 100  # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
 tx_sd_msk = 1  # 1 to shutdown 8tx opamp during reception, or 0 to keep it powered up during reception
-en_dconv = 0  # enable downconversion in the fpga
+en_dconv = 1  # enable downconversion in the fpga
 dconv_fact = 4  # downconversion factor. minimum of 4.
 
 # coil param and measured voltage across the coil
@@ -97,7 +97,7 @@ nmrObj.assertControlSignal( nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_
 #    nmrObj.PSU_15V_TX_P_EN_msk | nmrObj.PSU_15V_TX_N_EN_msk)
 
 freq_comp = cpmg_freq #+ 0.03
-freqS21_comp = cpmg_freq + 0.03
+freqS21_comp = cpmg_freq
 
 if (load_para):
     # parameter from 
@@ -107,9 +107,9 @@ if (load_para):
     Cser = int(CserList[[i for i, elem in enumerate( FreqList ) if abs( elem - freq_comp) < 0.01][0]])
     
     ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
-        para_folder, '/genS21Table_input.txt' )  # read file
-    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freq_comp) < 0.05][0]]
-    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freq_comp) < 0.05][0]]
+        para_folder, '/genS21Table_input_10k.txt' )  # read file
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freq_comp) < 0.01][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freq_comp) < 0.01][0]]
     
 else:
     Cpar = 563

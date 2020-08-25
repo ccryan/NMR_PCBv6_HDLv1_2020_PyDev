@@ -285,9 +285,9 @@ S11mV_ref, minS11Freq_ref = runExpt( 0, 0, 0, 0 )  # background is computed with
 MinS11mV = np.min(S11mV_ref)  # find the minimum S11 value
 
 print( "\tStart findMinS11" )
-for cpar_i in range(600, 1000, 5):
-    up_end = int(cpar_i/1.8)
-    low_end = int(cpar_i/3)
+for cpar_i in range(300, 700, 4):
+    up_end = int(cpar_i/1.4)
+    low_end = int(cpar_i/2.3)
     # run a quick search
     for cser_i in range(low_end, up_end, 10):
         S11dBCurr, minS11FreqCurr= runExpt( cpar_i, cser_i , S11mV_ref, 'True'  )

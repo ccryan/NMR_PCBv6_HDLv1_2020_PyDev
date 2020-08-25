@@ -22,13 +22,13 @@ from datetime import datetime
 # variables
 data_folder = "/root/NMR_DATA"
 en_scan_fig = 0
-en_fig = 1
+en_fig = 0
 en_remote_dbg = 0
 fig_num = 100
 direct_read = 0  # perform direct read from SDRAM. use with caution above!
 
 tx_sd_msk = 1  # 1 to shutdown 8tx opamp during reception, or 0 to keep it powered up during reception
-en_dconv = 0  # enable downconversion in the fpga
+en_dconv = 1  # enable downconversion in the fpga
 dconv_fact = 4  # downconversion factor. minimum of 4.
 
 # instantiate nmr object
@@ -52,20 +52,20 @@ nmrObj.assertControlSignal(
 cpmg_freq = 2.15
 pulse1_dtcl = 0.5  # useless with current code
 pulse2_dtcl = 0.5  # useless with current code
-echo_spacing_us = 200
-scan_spacing_us = 100000
+echo_spacing_us = 500
+scan_spacing_us = 24000
 samples_per_echo = 1024  # number of points
-echoes_per_scan = 200  # number of echos
-init_adc_delay_compensation = 6  # acquisition shift microseconds
-number_of_iteration = 20 # number of averaging
+echoes_per_scan = 40  # number of echos
+init_adc_delay_compensation = 25  # acquisition shift microseconds
+number_of_iteration = 1000 # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
 
 # sweep settings
-pulse_us_sta = 5 # in microsecond
-pulse_us_sto = 25  # in microsecond
-pulse_us_ste = 21  # number of steps
+pulse_us_sta = 50 # in microsecond
+pulse_us_sto = 51  # in microsecond
+pulse_us_ste = 11  # number of steps
 pulse_us_sw = np.linspace( pulse_us_sta, pulse_us_sto, pulse_us_ste )
 
 a_integ_table = np.zeros( pulse_us_ste )

@@ -295,7 +295,7 @@ def compute_multiple( nmrObj, data_parent_folder, meas_folder, file_name_prefix,
         for i in range( 0, NoE ):
             data_filt[i, :] = \
                 dconv[i * ( 2 * SpE ):( i + 1 ) * ( 2 * SpE ):2] + 1j * dconv[i * ( 2 * SpE ) + 1:( i + 1 ) * ( 2 * SpE ):2]
-
+            print(len(dconv[i * ( 2 * SpE ):( i + 1 ) * ( 2 * SpE ):2] + 1j * dconv[i * ( 2 * SpE ) + 1:( i + 1 ) * ( 2 * SpE ):2]))
         if en_fig:  # plot the averaged scan
             echo_space = ( 1 / Sf ) * np.linspace( 1, SpE, SpE )  # in s
             plt.figure( 1 )

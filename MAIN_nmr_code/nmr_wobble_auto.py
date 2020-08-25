@@ -2,6 +2,9 @@
 Created on Oct 30, 2018
 
 @author: David Ariando
+
+Edits: Cheng Chen, 07/2020, add automatic tuning
+08/2020, run in 10KHz spacing
 '''
 
 import os
@@ -25,15 +28,15 @@ para_folder = "/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/para"
 load_para = 1
 
 # measurement properties
-sta_freq = 1.5
+sta_freq = 1.0
 sto_freq = 2.5
 spac_freq = 0.01
 samp_freq = 25
-target_freq = 1.83
+target_freq = 2.03
 
 # freq compensation
-freq_comp = target_freq
-freqS21_comp = target_freq + 0.03
+freq_comp = target_freq+0.10
+freqS21_comp = target_freq
 
 # instantiate nmr object
 nmrObj = tunable_nmr_system_2018( data_parent_folder, en_remote_dbg )
@@ -52,9 +55,9 @@ nmrObj.assertControlSignal( nmrObj.PSU_5V_TX_N_EN_msk |
 
 if (load_para):
     ( FreqList_S21, PeakVoltage, VvaracList, VbiasList ) = data_parser.parse_csv_float4col_s11( 
-        para_folder, '/genS21Table_input.txt' )  # read file
-    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.05][0]]
-    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.05][0]]
+        para_folder, '/genS21Table_input_10k.txt' )  # read file
+    Vbias = VbiasList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.01][0]]
+    Vvarac = VvaracList[[i for i, elem in enumerate( FreqList_S21 ) if abs( elem - freqS21_comp) < 0.01][0]]
 else: 
 	Vbias = -2.5
 	Vvarac = 2.6

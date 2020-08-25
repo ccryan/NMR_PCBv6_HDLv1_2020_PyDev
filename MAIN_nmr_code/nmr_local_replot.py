@@ -21,7 +21,7 @@ data_folder = "V://NMR_DATA"
 #data_folder = "/root/NMR_DATA"
 en_fig = True
 en_remote_dbg = False
-use_latest_folder = True  # use latest experiment, otherwise specify the folder below
+use_latest_folder = False  # use latest experiment, otherwise specify the folder below
 
 nmrObj = tunable_nmr_system_2018( data_folder, en_remote_dbg )
 
@@ -33,7 +33,7 @@ if ( use_latest_folder ):
     ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 
         nmrObj, data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_fig )
 else:
-    meas_folder = '2020_07_30_20_42_46_cpmg'  # with scope probe placed at W45
+    meas_folder = '2020_08_16_18_57_34_cpmg'  # with scope probe placed at W45
     # meas_folder = '2019_05_26_21_24_41_cpmg'  # no scope probe placed at W45
     ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 
         nmrObj, data_folder, meas_folder, 0, 0, 0, direct_read, datain, en_fig )

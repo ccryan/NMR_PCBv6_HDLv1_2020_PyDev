@@ -58,9 +58,10 @@ number_of_iteration = 1000  # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
-tx_sd_msk = 1  # 1 to shutdown 8tx opamp during reception, or 0 to keep it powered up during reception
+tx_sd_msk = 1  # 1 to shutdown tx opamp during reception, or 0 to keep it powered up during reception
 en_dconv = 0  # enable downconversion in the fpga
 dconv_fact = 4  # downconversion factor. minimum of 4.
+echo_skip = 8  # echo skip factor. set to 1 for the ADC to capture all echoes
 
 # coil param and measured voltage across the coil
 Vpp = 312  # 190
@@ -113,7 +114,7 @@ if ( direct_read ):
 else:
     nmrObj.cpmgSequence( cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
                         echoes_per_scan, init_adc_delay_compensation, number_of_iteration,
-                        ph_cycl_en, pulse180_t1_int, delay180_t1_int , tx_sd_msk, en_dconv, dconv_fact )
+                        ph_cycl_en, pulse180_t1_int, delay180_t1_int , tx_sd_msk, en_dconv, dconv_fact, echo_skip )
     datain = []  # set datain to 0 because the data will be read from file instead
 
 if ( meas_time ):

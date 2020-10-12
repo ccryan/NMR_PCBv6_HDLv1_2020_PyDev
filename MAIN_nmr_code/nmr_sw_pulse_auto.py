@@ -4,6 +4,8 @@ Created on Mar 30, 2018
 @author: David Ariando
 
 Edits: Cheng Chen, 07/2020, add automatic tuning
+
+Description: NMR sweep measurements for multiple customized pulse lengths
 '''
 
 #!/usr/bin/python
@@ -94,13 +96,13 @@ for i in range( 0, pulse_us_ste ):
     print( 'plength = ' + str( pulse_us_sw[i] ) + ' us' )
 
     pulse1_us = pulse_us_sw[i]  # pulse pi/2 length
-    pulse2_us = 1.5*pulse_us_sw[i]   #pulse1_us*1.8   # pulse pi length
+    pulse2_us = 1.5 * pulse_us_sw[i]   #pulse1_us*1.8   # pulse pi length
     P90[i]=pulse1_us
     P180[i]=pulse2_us
     #cpmg_freq=cpmg_freq
     
      # compensate for setup 
-    freq_comp = cpmg_freq+0.10
+    freq_comp = cpmg_freq + 0.10
     freqS21_comp = cpmg_freq
     if (load_para):
         # parameter from 
@@ -127,7 +129,7 @@ for i in range( 0, pulse_us_ste ):
      
     nmrObj.cpmgSequence( cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
                         echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
-                         tx_sd_msk, en_dconv, dconv_fact  )
+                         tx_sd_msk, en_dconv, dconv_fact, echo_skip)
     datain = []  # set datain to 0 because the data will be read from file instead
     meas_folder = parse_simple_info( data_folder, 'current_folder.txt' )
 

@@ -56,14 +56,14 @@ samples_per_echo = 1024  # 3072
 echoes_per_scan = 200  # 20
 # put to 10 for broadband board and 6 for tunable board
 init_adc_delay_compensation = 20 #6  # acquisition shift microseconds.
-number_of_iteration = 1000  # number of averaging
+number_of_iteration = 10  # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
 tx_sd_msk = 1  # 1 to shutdown tx opamp during reception, or 0 to keep it powered up during reception
 en_dconv = 0  # enable downconversion in the fpga
 dconv_fact = 4  # downconversion factor. minimum of 4.
-echo_skip = 16  # echo skip factor. set to 1 for the ADC to capture all echoes
+echo_skip = 1  # echo skip factor. set to 1 for the ADC to capture all echoes
 
 # coil param and measured voltage across the coil
 Vpp = 312  # 190

@@ -5,6 +5,8 @@ Created on Mar 30, 2018
 
 Edits: Cheng Chen, 07/2020, add automatic tuning
 08/2020, run in 10KHz spacing
+
+Description: NMR sweep measurements for multiple customized frequencies
 '''
 
 #!/usr/bin/python
@@ -56,6 +58,7 @@ number_of_iteration = 1000 # number of averaging
 ph_cycl_en = 1
 pulse180_t1_int = 0
 delay180_t1_int = 0
+echo_skip = 1
 
 pulse1_us = 30  # pulse pi/2 length
 pulse2_us = 45 #pulse_us_sw[i]  # pulse pi length
@@ -169,7 +172,7 @@ for i in range( 0, Freq_step ):
     #                     tx_sd_msk, en_dconv, dconv_fact  )
     nmrObj.cpmgSequence( cpmg_freq_sw[i], pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo,
                     echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int,
-                     tx_sd_msk, en_dconv, dconv_fact  )
+                     tx_sd_msk, en_dconv, dconv_fact, echo_skip)
     datain = []  # set datain to 0 because the data will be read from file instead
     meas_folder = parse_simple_info( data_folder, 'current_folder.txt' )
 
@@ -184,7 +187,7 @@ for i in range( 0, Freq_step ):
     
     if process_data:
         ( a, a_integ, a0, snr, T2, noise, res, theta, data_filt, echo_avg, Df, t_echospace ) = compute_iterate( 
-        nmrObj, data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_scan_fig)
+        nmrObj, data_folder, meas_folder[0], 0, 0, 0, direct_read, datain, en_scan_fig, )
 
         a_integ_table[i] = a_integ
         

@@ -21,7 +21,7 @@ data_folder = "V://NMR_DATA"
 #data_folder = "/root/NMR_DATA"
 en_fig = True
 en_remote_dbg = False
-use_latest_folder = False  # use latest experiment, otherwise specify the folder below
+use_latest_folder = True  # use latest experiment, otherwise specify the folder below
 
 nmrObj = tunable_nmr_system_2018(data_folder, en_remote_dbg)
 
